@@ -1,0 +1,171 @@
+🧠 🏗️ TrustLens – Full System Architecture
+
+🔷 1. High-Level Architecture
+Frontend (React / Next.js)
+        ↓
+API Gateway (Node.js - Express)
+        ↓
+Core Services (Microservices style)
+   ├── Auth Service
+   ├── Transaction Service
+   ├── Trust Score Engine
+   ├── AI Fraud Detection Service
+   ├── Explainability Engine
+   └── Notification Service
+        ↓
+Database Layer (MongoDB + Redis)
+        ↓
+External / Mock APIs (Banking Simulator)
+
+🔥 2. Backend (Node.js Core)
+⚙️ Tech Stack (Optimized for Hackathon + Impact)
+Node.js (Express / Fastify) → main backend
+Python (optional microservice) → AI (lightweight models)
+MongoDB → main DB
+Redis → caching + real-time scoring
+JWT + OAuth → authentication
+Socket.io → real-time alerts
+🧩 3. Core Backend Modules
+🛡️ 1. Auth Service
+JWT-based login
+Device fingerprinting (important for trust score)
+
+👉 Security boost:
+
+Store hashed passwords (bcrypt)
+Add refresh tokens
+💳 2. Transaction Service
+Handles:
+Payments
+Transaction logs
+Sends data → AI service
+
+👉 Important:
+
+Every transaction triggers:
+fraud check
+trust score update
+
+🤖 3. AI Fraud Detection (Lightweight but Powerful)
+🔥 Use THIS combo (perfect for hackathon):
+Model:
+Isolation Forest (fast, unsupervised)
+OR
+Logistic Regression (simple + explainable)
+Why?
+No heavy training needed
+Works with small datasets
+Easy to deploy
+Input Features:
+Amount
+Time
+Location
+Device ID
+Frequency of transactions
+
+Output:
+{
+  "fraud_score": 0.82,
+  "flagged": true
+}
+
+🧠 4. Explainability Engine (YOUR WINNING EDGE)
+Use:
+SHAP (preferred)
+OR rule-based explanation (fallback)
+Output:
+{
+  "reason": [
+    "Amount is 3x higher than usual",
+    "New device detected",
+    "Unusual transaction time"
+  ]
+}
+
+👉 Judges LOVE this.
+
+📊 5. Trust Score Engine
+Formula (simple but effective):
+Trust Score = 100
+- fraud_risk * 40
+- new_device_penalty
+- location_anomaly_penalty
++ consistent_behavior_bonus
+
+Example Output:
+{
+  "trust_score": 72,
+  "status": "Medium Risk"
+}
+
+🔔 6. Notification Service
+Real-time alerts using:
+Socket.io
+Firebase (optional)
+Example:
+
+“Transaction flagged due to unusual behavior”
+
+🗄️ 4. Database Design (MongoDB)
+Collections:
+👤 Users
+{
+  "userId": "123",
+  "email": "",
+  "trustScore": 85,
+  "devices": [],
+  "locationHistory": []
+}
+💸 Transactions
+{
+  "userId": "123",
+  "amount": 5000,
+  "location": "Delhi",
+  "device": "iPhone",
+  "fraudScore": 0.8,
+  "flagged": true
+}
+📊 Logs (for explainability)
+{
+  "transactionId": "xyz",
+  "reasons": ["High amount", "New location"]
+}
+⚡ 5. Real-Time Flow (IMPORTANT FOR DEMO)
+🔄 Transaction Flow:
+User makes transaction
+        ↓
+Node.js API receives request
+        ↓
+Send to AI Fraud Service
+        ↓
+Get fraud score
+        ↓
+Run Explainability Engine
+        ↓
+Update Trust Score
+        ↓
+Store in DB
+        ↓
+Send alert to frontend (Socket.io)
+🔐 6. Security (MAKE IT JUDGE-IMPRESSIVE)
+
+From rulebook: professionalism + real-world impact matters
+
+Add these:
+🔒 Must-have:
+HTTPS (even mention it)
+JWT authentication
+Input validation (Joi / Zod)
+🔥 Advanced (big brownie points):
+Rate limiting (prevent abuse)
+Device fingerprinting
+Role-based access
+🚀 7. Deployment (Keep it SIMPLE but impressive)
+💡 Best Setup:
+Backend:
+Render / Railway / Vercel (Node.js)
+AI:
+Python microservice on:
+Flask + Render
+DB:
+MongoDB Atlas

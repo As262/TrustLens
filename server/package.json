@@ -1,0 +1,26 @@
+{
+  "name": "trustlens-server",
+  "version": "1.0.0",
+  "description": "TrustLens Backend - Explainable AI for Digital Banking",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "seed": "node utils/seed.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0",
+    "socket.io": "^4.6.1",
+    "dotenv": "^16.0.3",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "joi": "^17.9.1",
+    "axios": "^1.3.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
