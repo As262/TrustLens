@@ -86,7 +86,7 @@ router.post(
         email: normalizedEmail,
         passwordHash,
         name: name.trim(),
-        trustScore: 50, // Initial trust score
+        trustScore: 100, // Initial trust score
       });
 
       const tokens = issueAuthTokens(user, res);
