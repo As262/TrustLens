@@ -74,7 +74,9 @@ function App() {
           <Route path="/dashboard" element={<Dashboard user={user} />} />
           <Route path="/transactions" element={<Transactions user={user} />} />
           <Route path="/privacy" element={<Privacy user={user} />} />
-          <Route path="/fraud-simulator" element={<FraudSimulation user={user} />} />          <Route path="/send-payment" element={<SendPayment user={user} />} />          <Route path="/alerts" element={<Alerts user={user} />} />
+          <Route path="/fraud-simulator" element={<FraudSimulation user={user} />} />
+          <Route path="/send-payment" element={<SendPayment user={user} />} />
+          <Route path="/alerts" element={<Alerts user={user} />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </MainLayout>

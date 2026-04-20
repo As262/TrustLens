@@ -100,6 +100,10 @@ const transactionSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    alertCreated: {
+      type: Boolean,
+      default: false,
+    }
   },
   { timestamps: true }
 );

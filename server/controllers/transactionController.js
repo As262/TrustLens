@@ -2,6 +2,7 @@ import Transaction from '../models/Transaction.js';
 import User from '../models/User.js';
 import FraudLog from '../models/FraudLog.js';
 import AuditLog from '../models/AuditLog.js';
+import Alert from '../models/Alert.js';
 import { FraudService } from '../services/fraudService.js';
 import { ExplainabilityService } from '../services/explainabilityService.js';
 import { TrustScoreService } from '../services/trustScoreService.js';
@@ -203,6 +204,24 @@ export const submitTransaction = async (req, res) => {
     transaction.auditLogId = auditLog._id;
     await transaction.save();
 
+    // Create an alert if flagged
+    if (isFlagged) {
+      const alert = new Alert({
+        userId,
+        type: 'fraud',
+        severity: fraudAnalysis.fraudScore > 0.8 ? 'critical' : 'high',
+        message: `High risk transaction flagged: ${category} payment of $${amount} in ${location}.`,
+        metadata: {
+          transactionId: transaction._id,
+          amount,
+          location,
+          fraudScore: fraudAnalysis.fraudScore,
+          decision: decisionResult.decisionName,
+        },
+      });
+      await alert.save();
+    }
+
     return res.json({
       transaction: transaction._id,
       decision: decisionResult.decisionName,
@@ -233,14 +252,18 @@ export const submitTransaction = async (req, res) => {
 export const getUserTransactions = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { limit = 20, offset = 0 } = req.query;
+    const { limit = 20, offset = 0, status, isFlagged } = req.query;
 
-    const transactions = await Transaction.find({ userId })
+    const query = { userId };
+    if (status) query.status = status;
+    if (isFlagged !== undefined) query.isFlagged = isFlagged === 'true';
+
+    const transactions = await Transaction.find(query)
       .sort({ timestamp: -1 })
       .limit(parseInt(limit))
       .skip(parseInt(offset));
 
-    const total = await Transaction.countDocuments({ userId });
+    const total = await Transaction.countDocuments(query);
 
     res.json({
       transactions,

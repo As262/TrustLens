@@ -68,7 +68,7 @@ export default function Sidebar({ isOpen, setOpen, alertCount = 0 }) {
         {/* Logo/Brand */}
         <div className="px-6 h-[72px] border-b flex-shrink-0 flex flex-col justify-center" style={{ borderColor: 'var(--color-border)' }}>
           <h1 className="text-xl font-bold leading-tight" style={{ color: 'var(--color-primary)' }}>
-            🏦 TrustLens
+            TrustLens
           </h1>
           <p className="text-[11px] leading-tight mt-0.5 font-medium" style={{ color: 'var(--color-text-muted)' }}>
             Explainable AI Banking

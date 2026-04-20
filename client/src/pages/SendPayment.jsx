@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Crosshair, ArrowRight, AlertCircle, CheckCircle, Zap } from 'lucide-react';
 import { transactionAPI } from '../utils/api';
 import useTrust from '../hooks/useTrust';
@@ -8,15 +8,30 @@ export default function SendPayment({ user }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
+  const getDeviceName = () => {
+    const ua = navigator.userAgent;
+    if (ua.includes("Windows")) return "Windows PC";
+    if (ua.includes("Mac")) return "Mac";
+    if (ua.includes("Linux")) return "Linux PC";
+    if (ua.includes("iPhone")) return "iPhone";
+    if (ua.includes("iPad")) return "iPad";
+    if (ua.includes("Android")) return "Android Device";
+    return "Unknown Device";
+  };
+
   const [formData, setFormData] = useState({
     amount: '',
     location: 'New York, US',
-    deviceName: 'iPhone 14 Pro',
+    deviceName: getDeviceName(),
     category: 'shopping',
   });
 
   const categories = ['shopping', 'food', 'transport', 'bills', 'entertainment'];
   const commonLocations = ['New York, US', 'London, UK', 'Tokyo, UK', 'Lagos, NG', 'Unknown IP'];
+
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, deviceName: getDeviceName() }));
+  }, []);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -101,7 +116,7 @@ export default function SendPayment({ user }) {
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Payment Details</h2>
           <form onSubmit={handleSimulatePayment} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Amount ($)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Amount (₹)</label>
               <input
                 type="number"
                 name="amount"
@@ -140,14 +155,14 @@ export default function SendPayment({ user }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Device Simulating From</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Device</label>
               <input
                 type="text"
                 name="deviceName"
                 required
                 value={formData.deviceName}
-                onChange={handleChange}
-                className="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                readOnly
+                className="w-full border border-slate-300 rounded-lg px-4 py-2 bg-slate-50 text-slate-500 cursor-not-allowed focus:outline-none"
               />
             </div>
 

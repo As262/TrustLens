@@ -4,7 +4,7 @@ import { transactionAPI } from '../utils/api';
 /**
  * Custom hook for transaction data fetching
  */
-export const useTransactions = ({ page = 1, limit = 10, userId, withStats = true } = {}) => {
+export const useTransactions = ({ page = 1, limit = 10, userId, withStats = true, isFlagged } = {}) => {
   const [transactions, setTransactions] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,15 +25,15 @@ export const useTransactions = ({ page = 1, limit = 10, userId, withStats = true
 
     window.addEventListener('transactionsUpdated', handleUpdate);
     return () => window.removeEventListener('transactionsUpdated', handleUpdate);
-  }, [page, limit, userId, withStats]);
+  }, [page, limit, userId, withStats, isFlagged]);
 
   const fetchTransactions = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const requests = [transactionAPI.getTransactions({ userId, page, limit })];
-      if (withStats) {
+      const requests = [transactionAPI.getTransactions({ userId, page, limit, isFlagged })];
+      if (withStats && userId) {
         requests.push(transactionAPI.getStats({ userId }));
       }
 

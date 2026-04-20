@@ -1,8 +1,43 @@
 import express from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import Alert from '../models/Alert.js';
+import Transaction from '../models/Transaction.js';
 
 const router = express.Router();
+
+// Helper to generate missing alerts from flagged transactions
+const generateMissingAlerts = async (userId) => {
+  const flaggedTransactions = await Transaction.find({
+    userId,
+    isFlagged: true,
+    alertCreated: { $ne: true }
+  });
+
+  if (flaggedTransactions.length > 0) {
+    const newAlerts = flaggedTransactions.map(t => ({
+      userId,
+      type: 'fraud',
+      severity: t.fraudScore > 0.8 ? 'critical' : 'high',
+      message: `High risk transaction flagged: ${t.category || 'payment'} of $${t.amount} in ${t.location}.`,
+      isRead: false,
+      createdAt: t.timestamp,
+      metadata: {
+        transactionId: t._id,
+        amount: t.amount,
+        location: t.location,
+        fraudScore: t.fraudScore,
+        category: t.category
+      }
+    }));
+
+    await Alert.insertMany(newAlerts);
+    
+    await Transaction.updateMany(
+      { _id: { $in: flaggedTransactions.map(t => t._id) } },
+      { $set: { alertCreated: true } }
+    );
+  }
+};
 
 // GET: All alerts for user (protected)
 router.get('/', authMiddleware, async (req, res, next) => {
@@ -14,6 +49,8 @@ router.get('/', authMiddleware, async (req, res, next) => {
     if (read !== undefined) {
       query.isRead = read === 'true';
     }
+
+    await generateMissingAlerts(req.user.userId);
 
     const alerts = await Alert.find(query)
       .sort({ createdAt: -1 })
@@ -42,6 +79,8 @@ router.get('/', authMiddleware, async (req, res, next) => {
 // GET: Unread alert count
 router.get('/unread/count', authMiddleware, async (req, res, next) => {
   try {
+    await generateMissingAlerts(req.user.userId);
+
     const count = await Alert.countDocuments({
       userId: req.user.userId,
       isRead: false,
