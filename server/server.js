@@ -34,7 +34,7 @@ import { generalLimiter } from './middleware/rateLimiter.js';
 
 const app = express();
 const httpServer = createServer(app);
-const clientOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
+const clientOrigin = process.env.CLIENT_URL || 'https://trustlens-drhy.onrender.com';
 const io = new Server(httpServer, {
   cors: {
     origin: clientOrigin,
