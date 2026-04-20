@@ -3,7 +3,7 @@ import axios from 'axios';
 export const DEMO_USER_ID =
   import.meta.env.VITE_DEMO_USER_ID || '69dccbb4cf6b05ddf9b96846';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://trustlens-backend-a2a5.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
