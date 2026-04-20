@@ -12,14 +12,18 @@ export default function SendPayment({ user }) {
 
   const getDeviceName = () => {
     const ua = navigator.userAgent;
+    if (ua.includes("iPhone")) return "iPhone";
+    if (ua.includes("iPad")) return "iPad";
+    if (ua.includes("Android")) {
+      const match = ua.match(/Android[^;]*;\s*([^)]+)\)/);
+      return match ? match[1].trim() : "Android Device";
+    }
     if (ua.includes("Windows")) return "Windows PC";
     if (ua.includes("Mac")) return "Mac";
     if (ua.includes("Linux")) return "Linux PC";
-    if (ua.includes("iPhone")) return "iPhone";
-    if (ua.includes("iPad")) return "iPad";
-    if (ua.includes("Android")) return "Android Device";
     return "Unknown Device";
   };
+
 
   const [formData, setFormData] = useState({
     amount: '',
