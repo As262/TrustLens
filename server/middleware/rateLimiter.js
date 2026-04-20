@@ -14,9 +14,15 @@ export const generalLimiter = rateLimit({
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit to 5 attempts
+  max: 10, // Allow a few retries without locking people out too quickly
   message: { success: false, error: 'Too many login attempts, please try again later' },
   skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+export const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { success: false, error: 'Too many registration attempts, please try again later' },
 });
 
 export const transactionLimiter = rateLimit({

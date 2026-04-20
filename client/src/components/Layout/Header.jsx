@@ -25,31 +25,33 @@ export default function Header({ trustScore = 0, isConnected = false, alertCount
 
   return (
     <header
-      className="sticky top-0 z-40 border-b px-6 py-4"
+      className="sticky top-0 z-40 border-b px-6 h-[72px] flex flex-shrink-0 items-center"
       style={{
         backgroundColor: 'var(--color-surface)',
         borderColor: 'var(--color-border)',
       }}
     >
-      <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-4 w-full">
+        {/* Mobile Branding (hidden on desktop because sidebar has it) */}
+        <div className="flex items-center gap-3 md:hidden">
           <div
             className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm"
             style={{ backgroundColor: 'var(--color-primary)' }}
           >
             TL
           </div>
-          <div className="hidden sm:block">
-            <p className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+          <div>
+            <p className="text-sm font-semibold leading-tight" style={{ color: 'var(--color-text)' }}>
               TrustLens
             </p>
-            <p className="text-xs" style={{ color: 'var(--color-text-light)' }}>
+            <p className="text-xs leading-tight" style={{ color: 'var(--color-text-light)' }}>
               Explainable AI Banking
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Right side items (pushed to right using ml-auto on desktop) */}
+        <div className="flex items-center gap-3 ml-auto">
           <div
             className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg border ${
               scoreChange !== 0 ? 'animate-pulse' : ''

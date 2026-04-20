@@ -56,21 +56,21 @@ export default function Sidebar({ isOpen, setOpen, alertCount = 0 }) {
       <div
         className={`${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed md:static w-64 h-screen rounded-none md:rounded-r-lg transition-all duration-300 z-40 flex flex-col border-r md:border-t-0`}
+        } fixed md:static w-64 h-screen flex-shrink-0 rounded-none transition-all duration-300 z-40 flex flex-col border-r`}
         style={{
           backgroundColor: 'var(--color-surface)',
           borderColor: 'var(--color-border)',
         }}
       >
         {/* Header Spacing for Mobile */}
-        <div className="md:hidden h-16" />
+        <div className="md:hidden h-[72px]" />
 
         {/* Logo/Brand */}
-        <div className="px-6 py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-          <h1 className="text-xl font-bold" style={{ color: 'var(--color-primary)' }}>
+        <div className="px-6 h-[72px] border-b flex-shrink-0 flex flex-col justify-center" style={{ borderColor: 'var(--color-border)' }}>
+          <h1 className="text-xl font-bold leading-tight" style={{ color: 'var(--color-primary)' }}>
             🏦 TrustLens
           </h1>
-          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+          <p className="text-[11px] leading-tight mt-0.5 font-medium" style={{ color: 'var(--color-text-muted)' }}>
             Explainable AI Banking
           </p>
         </div>

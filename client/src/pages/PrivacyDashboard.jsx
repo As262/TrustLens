@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertCircle, Lock, Shield, Eye, Database, Check } from 'lucide-react';
 
 const DATA_CATEGORIES = [
@@ -111,8 +112,8 @@ function DataCategoryCard({ category, onLearnMore }) {
 
 function DetailsModal({ category, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="sticky top-0 bg-gradient-clay p-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-clay-900 flex items-center gap-3">
@@ -219,8 +220,7 @@ function DetailsModal({ category, onClose }) {
           </button>
         </div>
       </div>
-    </div>
-  );
+      </div>
 }
 
 export default function PrivacyDashboard() {

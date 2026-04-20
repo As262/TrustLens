@@ -29,8 +29,9 @@ function App() {
             window.dispatchEvent(new Event('trustScoreUpdated'));
           }
         } catch (error) {
-          console.error("Auth session expired", error);
+          console.error('Auth session expired', error);
           localStorage.removeItem('trustlens_token');
+          await authAPI.logout().catch(() => undefined);
         }
       }
       setLoading(false);
@@ -46,6 +47,7 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('trustlens_token');
+    authAPI.logout().catch(() => undefined);
     setUser(null);
     window.location.href = '/';
   };

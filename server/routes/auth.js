@@ -4,9 +4,44 @@ import jwt from 'jsonwebtoken';
 import bcryptjs from 'bcryptjs';
 import User from '../models/User.js';
 import { authMiddleware } from '../middleware/auth.js';
-import { authLimiter } from '../middleware/rateLimiter.js';
+import { authLimiter, registerLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
+
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
+const issueAuthTokens = (user, res) => {
+  const accessToken = jwt.sign(
+    { userId: user._id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: '15m' }
+  );
+
+  const refreshToken = jwt.sign(
+    { userId: user._id, tokenVersion: user.tokenVersion || 0 },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+
+  res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
+
+  return {
+    accessToken,
+    user: {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      trustScore: user.trustScore,
+      accountStatus: user.accountStatus,
+      riskLevel: user.riskLevel,
+    },
+  };
+};
 
 const handleValidationErrors = (req, res) => {
   const errors = validationResult(req);
@@ -15,24 +50,30 @@ const handleValidationErrors = (req, res) => {
       success: false,
       error: errors.array().map((e) => e.msg).join(', '),
     });
+    return true;
   }
+
+  return false;
 };
 
 // POST: Register new user
 router.post(
   '/register',
-  authLimiter,
+  registerLimiter,
   body('email').isEmail().normalizeEmail(),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('name').trim().notEmpty().withMessage('Name is required'),
   async (req, res, next) => {
     try {
-      handleValidationErrors(req, res);
+      if (handleValidationErrors(req, res)) {
+        return;
+      }
 
       const { email, password, name } = req.body;
+      const normalizedEmail = email.toLowerCase();
 
       // Check if user exists
-      const existing = await User.findOne({ email });
+      const existing = await User.findOne({ email: normalizedEmail });
       if (existing) {
         return res.status(409).json({ success: false, error: 'Email already registered' });
       }
@@ -42,40 +83,17 @@ router.post(
 
       // Create user
       const user = await User.create({
-        email,
+        email: normalizedEmail,
         passwordHash,
-        name,
+        name: name.trim(),
         trustScore: 50, // Initial trust score
       });
 
-      // Generate tokens
-      const accessToken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
-        expiresIn: '15m',
-      });
-
-      const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-        expiresIn: '7d',
-      });
-
-      // Set refresh token in httpOnly cookie
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+      const tokens = issueAuthTokens(user, res);
 
       res.status(201).json({
         success: true,
-        data: {
-          user: {
-            id: user._id,
-            email: user.email,
-            name: user.name,
-            trustScore: user.trustScore,
-          },
-          accessToken,
-        },
+        data: tokens,
       });
     } catch (error) {
       next(error);
@@ -91,12 +109,15 @@ router.post(
   body('password').notEmpty(),
   async (req, res, next) => {
     try {
-      handleValidationErrors(req, res);
+      if (handleValidationErrors(req, res)) {
+        return;
+      }
 
       const { email, password } = req.body;
+      const normalizedEmail = email.toLowerCase();
 
       // Find user
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ email: normalizedEmail });
       if (!user) {
         return res.status(401).json({ success: false, error: 'Invalid credentials' });
       }
@@ -107,34 +128,11 @@ router.post(
         return res.status(401).json({ success: false, error: 'Invalid credentials' });
       }
 
-      // Generate tokens
-      const accessToken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
-        expiresIn: '15m',
-      });
-
-      const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-        expiresIn: '7d',
-      });
-
-      // Set refresh token in httpOnly cookie
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+      const tokens = issueAuthTokens(user, res);
 
       res.json({
         success: true,
-        data: {
-          user: {
-            id: user._id,
-            email: user.email,
-            name: user.name,
-            trustScore: user.trustScore,
-          },
-          accessToken,
-        },
+        data: tokens,
       });
     } catch (error) {
       next(error);
@@ -145,7 +143,7 @@ router.post(
 // POST: Refresh token
 router.post('/refresh', async (req, res, next) => {
   try {
-    const { refreshToken } = req.cookies;
+    const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
       return res.status(401).json({ success: false, error: 'No refresh token' });
     }
@@ -154,6 +152,11 @@ router.post('/refresh', async (req, res, next) => {
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(401).json({ success: false, error: 'User not found' });
+    }
+
+    if ((user.tokenVersion || 0) !== (decoded.tokenVersion || 0)) {
+      res.clearCookie('refreshToken', COOKIE_OPTIONS);
+      return res.status(403).json({ success: false, error: 'Invalid refresh token' });
     }
 
     const accessToken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
@@ -165,13 +168,17 @@ router.post('/refresh', async (req, res, next) => {
       data: { accessToken },
     });
   } catch (error) {
-    res.status(403).json({ success: false, error: 'Invalid refresh token' });
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      res.clearCookie('refreshToken');
+      return res.status(403).json({ success: false, error: 'Invalid refresh token' });
+    }
+    next(error);
   }
 });
 
 // POST: Logout
 router.post('/logout', (req, res) => {
-  res.clearCookie('refreshToken');
+  res.clearCookie('refreshToken', COOKIE_OPTIONS);
   res.json({ success: true, data: { message: 'Logged out successfully' } });
 });
 

@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Pie, PieChart, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import { PrivacySkeleton } from '../components/LoadingSkeletons';
 import useTrust from '../hooks/useTrust';
@@ -218,9 +219,9 @@ export default function Privacy() {
         </button>
       </div>
 
-      {showDeleteConfirm && (
+      {showDeleteConfirm && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50"
           onClick={() => setShowDeleteConfirm(false)}
         >
           <div
@@ -243,6 +244,7 @@ export default function Privacy() {
                 Cancel
               </button>
               <button
+                onClick={() => setShowDeleteConfirm(false)}
                 className="flex-1 px-4 py-2 rounded-lg font-semibold text-white"
                 style={{ backgroundColor: 'var(--color-danger)' }}
               >
@@ -250,7 +252,8 @@ export default function Privacy() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -25,12 +25,39 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response.data,
   async (error) => {
-    if (error.response?.status === 401 && !error.config?._retry) {
-      error.config._retry = true;
+    const originalRequest = error.config;
+    const requestUrl = originalRequest?.url || '';
+    const hasAccessToken = Boolean(localStorage.getItem('trustlens_token'));
+    const isAuthEndpoint =
+      requestUrl.includes('/auth/login') ||
+      requestUrl.includes('/auth/register') ||
+      requestUrl.includes('/auth/refresh') ||
+      requestUrl.includes('/auth/logout');
+
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      hasAccessToken &&
+      !isAuthEndpoint
+    ) {
+      originalRequest._retry = true;
       try {
-        await api.post('/auth/refresh');
-        return api(error.config);
+        const refreshResponse = await api.post('/auth/refresh');
+        const newAccessToken = refreshResponse?.accessToken;
+
+        if (newAccessToken) {
+          localStorage.setItem('trustlens_token', newAccessToken);
+          originalRequest.headers = originalRequest.headers || {};
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        }
+
+        return api(originalRequest);
       } catch (refreshError) {
+        localStorage.removeItem('trustlens_token');
+        if (refreshError.response?.status === 403) {
+          localStorage.removeItem('trustlens_token');
+        }
         return Promise.reject(refreshError);
       }
     }

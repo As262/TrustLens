@@ -6,6 +6,7 @@ const Auth = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -20,6 +21,7 @@ const Auth = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccessMessage(null);
     setLoading(true);
 
     try {
@@ -31,12 +33,24 @@ const Auth = ({ onLogin }) => {
       }
 
       if (res.success) {
+        if (!isLogin) {
+          setSuccessMessage('Account created. Signing you in now.');
+        }
         onLogin(res.data.user, res.data.accessToken);
       } else {
         setError(res.error || 'Authentication failed');
       }
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Network error occurred');
+      const responseError = err.response?.data?.error || err.response?.data?.message;
+      if (err.response?.status === 429) {
+        setError(responseError || 'Too many attempts. Please wait before trying again.');
+      } else if (err.response?.status === 401) {
+        setError('Invalid credentials. Check your email and password.');
+      } else if (err.response?.status === 403) {
+        setError('Your session is no longer valid. Please sign in again.');
+      } else {
+        setError(responseError || err.message || 'Network error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -65,6 +79,12 @@ const Auth = ({ onLogin }) => {
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
               {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-md text-sm">
+              {successMessage}
             </div>
           )}
 

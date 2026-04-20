@@ -3,10 +3,21 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config();
+
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ JWT_SECRET is required in production');
+    process.exit(1);
+  }
+
+  process.env.JWT_SECRET = 'trustlens-dev-secret-change-me';
+  console.warn('⚠️ JWT_SECRET not set. Using insecure development fallback secret.');
+}
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -23,17 +34,25 @@ import { generalLimiter } from './middleware/rateLimiter.js';
 
 const app = express();
 const httpServer = createServer(app);
+const clientOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: clientOrigin,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
   },
 });
 
 /**
  * Middleware
  */
-app.use(cors());
+app.use(
+  cors({
+    origin: clientOrigin,
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(generalLimiter);
@@ -174,11 +193,29 @@ app.use(errorHandler);
 /**
  * Start Server
  */
-const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌐 http://localhost:${PORT}`);
-  console.log(`📡 WebSocket ready on ws://localhost:${PORT}`);
-});
+const DEFAULT_PORT = Number(process.env.PORT) || 5000;
+const MAX_PORT_RETRIES = 10;
+
+const startServer = (port, retry = 0) => {
+  httpServer.once('error', (error) => {
+    if (error.code === 'EADDRINUSE' && retry < MAX_PORT_RETRIES) {
+      const nextPort = port + 1;
+      console.warn(`⚠️ Port ${port} is in use. Retrying on ${nextPort}...`);
+      startServer(nextPort, retry + 1);
+      return;
+    }
+
+    console.error('❌ Server failed to start:', error.message);
+    process.exit(1);
+  });
+
+  httpServer.listen(port, () => {
+    console.log(`🚀 Server running on port ${port}`);
+    console.log(`🌐 http://localhost:${port}`);
+    console.log(`📡 WebSocket ready on ws://localhost:${port}`);
+  });
+};
+
+startServer(DEFAULT_PORT);
 
 export { io, app };
