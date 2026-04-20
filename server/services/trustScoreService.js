@@ -1,10 +1,9 @@
 /**
  * Trust Score Service
  * ─────────────────────────────────────────────────────────────────────────────
- * Formula (base 100):
- *   + consistent_behavior_bonus    (device / location / history)
- *   - fraud_risk_penalty           (avg fraud score × 40)
- *   - flagged_transaction_penalty  (5 pts each)
+ * Formula (base 78):
+ *   + consistency/history bonuses
+ *   - fraud/flagged/inactivity penalties
  *   - inactivity_decay             (1 pt/day after 30 day gap, max -15)
  */
 
@@ -51,35 +50,36 @@ export class TrustScoreService {
       timestamp: { $gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) }, // Last 90 days
     });
 
-    let score = 100;
+    // Start users below 100 so trust can grow or shrink based on behavior.
+    let score = 78;
 
     // Factor 1: Average fraud score impact
     const avgFraudScore =
       recentTransactions.length > 0
         ? recentTransactions.reduce((sum, t) => sum + t.fraudScore, 0) / recentTransactions.length
         : 0;
-    const fraudPenalty = avgFraudScore * 40;
+    const fraudPenalty = avgFraudScore * 45;
     score -= fraudPenalty;
 
-    // Factor 2: Flagged transaction penalty (5 pts each, uncapped — harsh but intentional)
+    // Factor 2: Flagged transaction penalty
     const flaggedCount     = recentTransactions.filter((t) => t.isFlagged).length;
-    const flaggedPenalty   = flaggedCount * 5;
+    const flaggedPenalty   = flaggedCount * 8;
     score -= flaggedPenalty;
 
     // Factor 3: Device consistency
-    const uniqueDevices = new Set(recentTransactions.map((t) => t.deviceId)).size;
+    const uniqueDevices = new Set(recentTransactions.map((t) => t.deviceId).filter(Boolean)).size;
     let deviceBonus = 0;
-    if (uniqueDevices <= 2)  deviceBonus =  10;
+    if (recentTransactions.length > 0 && uniqueDevices <= 2) deviceBonus = 10;
     else if (uniqueDevices > 5) deviceBonus = -15;
     score += deviceBonus;
 
     // Factor 4: Location consistency
-    const uniqueLocations = new Set(recentTransactions.map((t) => t.location)).size;
-    const locationBonus   = uniqueLocations <= 3 ? 8 : 0;
+    const uniqueLocations = new Set(recentTransactions.map((t) => t.location).filter(Boolean)).size;
+    const locationBonus   = recentTransactions.length > 0 && uniqueLocations <= 3 ? 8 : 0;
     score += locationBonus;
 
     // Factor 5: Established history bonus
-    const historyBonus = recentTransactions.length > 5 ? 5 : 0;
+    const historyBonus = recentTransactions.length > 10 ? 6 : recentTransactions.length > 4 ? 3 : 0;
     score += historyBonus;
 
     // Factor 6: Recent clean streak (last 7 days, no flags, low score)

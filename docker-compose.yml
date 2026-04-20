@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: trustlens_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - payment_net
+
+  trustlens-api:
+    build: 
+      context: ./TrustLens-API
+      dockerfile: Dockerfile
+    container_name: trustlens_api
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    networks:
+      - payment_net
+
+  payment-backend:
+    build:
+      context: ./payment-backend
+      dockerfile: Dockerfile
+    container_name: trustlens_payment_backend
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/payment-orchestration
+      - PORT=4000
+      - FASTAPI_URL=http://trustlens-api:8000
+    depends_on:
+      - mongodb
+      - trustlens-api
+    networks:
+      - payment_net
+
+networks:
+  payment_net:
+    driver: bridge
+
+volumes:
+  mongodb_data:

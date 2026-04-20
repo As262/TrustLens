@@ -1,0 +1,57 @@
+openapi: 3.0.0
+info:
+  title: TrustLens Payment Orchestration API
+  description: Node.js API to process payments, interfacing with TrustLens AI
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000/api
+    description: Local development server
+paths:
+  /pay:
+    post:
+      summary: Process a payment and get truth score
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - amount
+                - deviceId
+                - location
+              properties:
+                userId:
+                  type: string
+                amount:
+                  type: number
+                deviceId:
+                  type: string
+                location:
+                  type: string
+                cardDetails:
+                  type: object
+      responses:
+        '200':
+          description: Payment processed
+  /transactions:
+    get:
+      summary: Get all historic transactions
+      responses:
+        '200':
+          description: Returns an array of transactions
+  /users/{id}:
+    get:
+      summary: Get user risk profile
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns user doc
+        '404':
+          description: User not found

@@ -243,10 +243,16 @@ export const getTrustScore = async (req, res) => {
 
     const insights = await trustScoreService.getTrustScoreInsights(userId);
 
+    if (user.trustScore !== insights.currentScore || user.riskLevel !== insights.riskLevel) {
+      user.trustScore = insights.currentScore;
+      user.riskLevel = insights.riskLevel;
+      await user.save();
+    }
+
     return res.json({
       userId,
-      trustScore:    user.trustScore,
-      riskLevel:     user.riskLevel,
+      trustScore:    insights.currentScore,
+      riskLevel:     insights.riskLevel,
       accountStatus: user.accountStatus,
       insights,
     });
