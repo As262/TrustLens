@@ -189,13 +189,6 @@ export default function SendPayment({ user }) {
                   <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">AI Reasoning</div>
                   <div className="text-sm font-medium text-slate-800 mt-1">{result.systemMessage || result.reasoning?.ruleReason || result.reasoning?.fraudReason || (result.explanations && result.explanations[0]?.detail) || 'Transaction looks completely normal based on historical patterns.'}</div>
                 </div>
-
-                <div className="flex justify-between items-center pt-2 border-t border-slate-200/50">
-                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Trust Impact</div>
-                  <div className={`text-sm font-bold px-2 py-1 rounded ${result.trustScoreImpact > 0 ? 'bg-green-100 text-green-700' : result.trustScoreImpact < 0 ? 'bg-red-100 text-red-700' : 'bg-slate-200 text-slate-600'}`}>
-                    {result.trustScoreImpact > 0 ? '+' : ''}{result.trustScoreImpact || 0} Pts
-                  </div>
-                </div>
               </div>
             </div>
           )}

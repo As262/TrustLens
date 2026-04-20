@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
     },
     trustScore: {
       type: Number,
-      default: 85,
+      default: 60,
       min: 0,
       max: 100,
     },

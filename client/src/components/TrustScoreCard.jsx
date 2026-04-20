@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const TrustScoreCard = ({ trustScore = 85, riskLevel = 'low' }) => {
+const TrustScoreCard = ({ trustScore = 60, riskLevel = 'low' }) => {
   const [scoreTheta, setScoreTheta] = useState(0);
 
   useEffect(() => {

@@ -2,7 +2,7 @@
  * TrustScoreBadge - Circular trust score display
  * Shows score 0-100 with color coding and label
  */
-export default function TrustScoreBadge({ score = 75, size = 'md' }) {
+export default function TrustScoreBadge({ score = 60, size = 'md' }) {
   const getTrustColor = () => {
     if (score >= 75) return { bg: 'rgba(22, 163, 74, 0.12)', text: '#16A34A' };
     if (score >= 50) return { bg: 'rgba(217, 119, 6, 0.12)', text: '#D97706' };

@@ -26,6 +26,7 @@ function App() {
           const res = await authAPI.getMe();
           if (res.success) {
             setUser(res.data.user);
+            window.dispatchEvent(new Event('trustScoreUpdated'));
           }
         } catch (error) {
           console.error("Auth session expired", error);
@@ -40,11 +41,13 @@ function App() {
   const handleLogin = (userData, token) => {
     localStorage.setItem('trustlens_token', token);
     setUser(userData);
+    window.dispatchEvent(new Event('trustScoreUpdated'));
   };
 
   const handleLogout = () => {
     localStorage.removeItem('trustlens_token');
     setUser(null);
+    window.location.href = '/';
   };
 
   if (loading) {
@@ -59,7 +62,7 @@ function App() {
     <Router>
       <MainLayout
         user={user}
-        trustScore={score?.score || 75}
+        trustScore={score?.score || 60}
         alertCount={unreadCount}
         isConnected={true}
         onLogout={handleLogout}

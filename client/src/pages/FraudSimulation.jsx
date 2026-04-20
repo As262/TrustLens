@@ -85,7 +85,7 @@ const severityColor = {
 
 export default function FraudSimulation({ user }) {
   const { score, loading, error, refetch } = useTrust();
-  const baseScore = score?.score ?? 85;
+  const baseScore = score?.score ?? 60;
 
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [isRunning, setIsRunning] = useState(false);

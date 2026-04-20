@@ -68,7 +68,7 @@ async function seedSyntheticData() {
         user = new User({
           email: customerConfig.email,
           passwordHash: '$2b$10$dummy', // Placeholder hash
-          trustScore: 85,
+          trustScore: 60,
           riskLevel: 'low',
           accountStatus: 'active',
           devices: [
