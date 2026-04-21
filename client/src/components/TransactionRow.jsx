@@ -6,7 +6,7 @@ import {
   Film,
   ShoppingBag,
   Utensils,
-} from 'lucide-react';
+} from "lucide-react";
 
 /**
  * TransactionRow - Single row in transaction table
@@ -15,47 +15,49 @@ export default function TransactionRow({
   transaction = {},
   onAction = () => {},
   onSelect = () => {},
-  actionLabel = 'Explain',
+  actionLabel = "Explain",
   isBlocked = false,
 }) {
   const {
     amount = 0,
     merchant,
-    category = 'other',
+    category = "other",
     location,
     city,
     timestamp = new Date(),
-    status = 'completed',
+    status = "completed",
     isFlagged = false,
     fraudScore = 0,
   } = transaction;
 
-  const displayLocation = location || city || 'Unknown';
-  const displayMerchant = merchant || `${category.charAt(0).toUpperCase() + category.slice(1)} Merchant`;
+  const displayLocation = location || city || "Unknown";
+  const displayMerchant =
+    merchant ||
+    `${category.charAt(0).toUpperCase() + category.slice(1)} Merchant`;
 
   const formatAmount = (amt) =>
-    new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       minimumFractionDigits: 0,
     }).format(amt);
 
   const formatTime = (date) =>
-    new Date(date).toLocaleDateString('en-IN', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    new Date(date).toLocaleDateString("en-IN", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
   const getStatus = () => {
-    if (isFlagged || status === 'flagged') {
-      return { label: 'Flagged', color: 'var(--color-danger)' };
+    if (isFlagged || status === "flagged") {
+      return { label: "Flagged", color: "var(--color-danger)" };
     }
     if (fraudScore >= 0.6) {
-      return { label: 'Suspicious', color: 'var(--color-warning)' };
+      return { label: "Suspicious", color: "var(--color-warning)" };
     }
-    return { label: 'Normal', color: 'var(--color-success)' };
+    return { label: "Normal", color: "var(--color-success)" };
   };
 
   const getCategoryIcon = () => {
@@ -76,34 +78,43 @@ export default function TransactionRow({
     <tr
       className="txn-row border-b cursor-pointer transition-colors"
       onClick={() => onSelect(transaction)}
-      style={{ borderColor: 'var(--color-border)' }}
+      style={{ borderColor: "var(--color-border)" }}
     >
       <td className="px-4 py-3 text-sm">
         <div className="flex items-center gap-3">
-          <span className="text-slate-500" style={{ color: 'var(--color-text-muted)' }}>
+          <span
+            className="text-slate-500"
+            style={{ color: "var(--color-text-muted)" }}
+          >
             {getCategoryIcon()}
           </span>
           <div>
-            <p className="font-medium" style={{ color: 'var(--color-text)' }}>
+            <p className="font-medium" style={{ color: "var(--color-text)" }}>
               {displayMerchant}
             </p>
-            <p className="text-xs" style={{ color: 'var(--color-text-light)' }}>
+            <p className="text-xs" style={{ color: "var(--color-text-light)" }}>
               {displayLocation}
             </p>
           </div>
         </div>
       </td>
-      <td className="px-4 py-3 text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+      <td
+        className="px-4 py-3 text-sm font-semibold"
+        style={{ color: "var(--color-text)" }}
+      >
         {formatAmount(amount)}
       </td>
-      <td className="px-4 py-3 text-xs" style={{ color: 'var(--color-text-muted)' }}>
+      <td
+        className="px-4 py-3 text-xs"
+        style={{ color: "var(--color-text-muted)" }}
+      >
         {formatTime(timestamp)}
       </td>
       <td className="px-4 py-3 text-sm">
         <span
           className="px-2 py-1 rounded-full text-xs font-semibold"
           style={{
-            backgroundColor: 'var(--color-surface-secondary)',
+            backgroundColor: "var(--color-surface-secondary)",
             color: statusBadge.color,
           }}
         >
@@ -114,24 +125,31 @@ export default function TransactionRow({
         <button
           onClick={(event) => {
             event.stopPropagation();
-            if (!isBlocked) onAction(transaction);
+            onAction(transaction);
           }}
-          disabled={isBlocked}
           className="px-3 py-1 rounded-lg border text-xs font-semibold transition"
           style={
             isBlocked
               ? {
-                  borderColor: 'var(--color-border)',
-                  color: 'var(--color-text-muted)',
-                  backgroundColor: 'var(--color-surface-secondary)',
-                  cursor: 'not-allowed',
-                  opacity: 0.7,
+                  borderColor: "var(--color-success)",
+                  color: "white",
+                  backgroundColor: "var(--color-success)",
+                  cursor: "pointer",
                 }
               : {
-                  borderColor: actionLabel === 'Block Card' ? 'var(--color-danger)' : 'var(--color-primary)',
-                  color: actionLabel === 'Block Card' ? 'white' : 'var(--color-primary)',
-                  backgroundColor: actionLabel === 'Block Card' ? 'var(--color-danger)' : 'transparent',
-                  cursor: 'pointer',
+                  borderColor:
+                    actionLabel === "Block Card"
+                      ? "var(--color-danger)"
+                      : "var(--color-primary)",
+                  color:
+                    actionLabel === "Block Card"
+                      ? "white"
+                      : "var(--color-primary)",
+                  backgroundColor:
+                    actionLabel === "Block Card"
+                      ? "var(--color-danger)"
+                      : "transparent",
+                  cursor: "pointer",
                 }
           }
         >

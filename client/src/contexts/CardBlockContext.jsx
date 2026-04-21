@@ -1,8 +1,14 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 
 const CardBlockContext = createContext(null);
 
-const STORAGE_KEY = 'trustlens_blocked_cards';
+const STORAGE_KEY = "trustlens_blocked_cards";
 
 function loadFromStorage() {
   try {
@@ -23,7 +29,7 @@ function saveToStorage(ids, transactions, blocked) {
   try {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ ids: [...ids], transactions, blocked })
+      JSON.stringify({ ids: [...ids], transactions, blocked }),
     );
   } catch {
     // storage unavailable — silently ignore
@@ -36,7 +42,9 @@ export function CardBlockProvider({ children }) {
   // Set of transaction IDs whose cards have been blocked
   const [blockedCardIds, setBlockedCardIds] = useState(initial.ids);
   // Log of blocked transactions
-  const [blockedTransactions, setBlockedTransactions] = useState(initial.transactions);
+  const [blockedTransactions, setBlockedTransactions] = useState(
+    initial.transactions,
+  );
   // True once ANY card is blocked (disables future payments globally)
   const [isCardBlocked, setIsCardBlocked] = useState(initial.blocked);
 
@@ -46,20 +54,21 @@ export function CardBlockProvider({ children }) {
   }, [blockedCardIds, blockedTransactions, isCardBlocked]);
 
   const blockCard = useCallback((txnId, txnDetails) => {
-    setBlockedCardIds(prev => {
+    setBlockedCardIds((prev) => {
       const next = new Set([...prev, txnId]);
       return next;
     });
     setIsCardBlocked(true);
-    setBlockedTransactions(prev => [
+    setBlockedTransactions((prev) => [
       {
         id: txnId,
-        merchant: txnDetails?.merchant || txnDetails?.category || 'Unknown Merchant',
+        merchant:
+          txnDetails?.merchant || txnDetails?.category || "Unknown Merchant",
         amount: txnDetails?.amount || 0,
-        location: txnDetails?.location || txnDetails?.city || 'Unknown',
+        location: txnDetails?.location || txnDetails?.city || "Unknown",
         timestamp: new Date().toISOString(),
-        reason: 'Card Blocked',
-        status: 'blocked',
+        reason: "Card Blocked",
+        status: "blocked",
       },
       ...prev,
     ]);
@@ -67,12 +76,31 @@ export function CardBlockProvider({ children }) {
 
   const isBlocked = useCallback(
     (txnId) => blockedCardIds.has(txnId),
-    [blockedCardIds]
+    [blockedCardIds],
   );
+
+  const unblockCard = useCallback((txnId) => {
+    setBlockedCardIds((prev) => {
+      const next = new Set(prev);
+      next.delete(txnId);
+      if (next.size === 0) {
+        setIsCardBlocked(false);
+      }
+      return next;
+    });
+    setBlockedTransactions((prev) => prev.filter((t) => t.id !== txnId));
+  }, []);
 
   return (
     <CardBlockContext.Provider
-      value={{ blockedCardIds, blockedTransactions, isCardBlocked, blockCard, isBlocked }}
+      value={{
+        blockedCardIds,
+        blockedTransactions,
+        isCardBlocked,
+        blockCard,
+        unblockCard,
+        isBlocked,
+      }}
     >
       {children}
     </CardBlockContext.Provider>
@@ -81,6 +109,7 @@ export function CardBlockProvider({ children }) {
 
 export function useCardBlock() {
   const ctx = useContext(CardBlockContext);
-  if (!ctx) throw new Error('useCardBlock must be used inside CardBlockProvider');
+  if (!ctx)
+    throw new Error("useCardBlock must be used inside CardBlockProvider");
   return ctx;
 }
