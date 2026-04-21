@@ -33,6 +33,10 @@ const transactionSchema = new mongoose.Schema(
       enum: ['shopping', 'dining', 'utilities', 'entertainment', 'transfer', 'withdrawal', 'food', 'transport', 'bills'],
       default: 'shopping',
     },
+    recipient: {
+      type: String,
+      trim: true,
+    },
     fraudScore: {
       type: Number,
       min: 0,
@@ -97,6 +101,71 @@ const transactionSchema = new mongoose.Schema(
       ref: 'AuditLog',
     },
     trustScoreImpact: {
+      type: Number,
+      default: 0,
+    },
+    finalRiskScore: {
+      type: Number,
+      min: 0,
+      max: 1,
+      default: 0,
+    },
+    finalDecision: {
+      type: String,
+      enum: ['APPROVED', 'WARNING', 'BLOCKED'],
+      default: 'APPROVED',
+    },
+    recommendation: String,
+    riskReasons: {
+      type: [String],
+      default: [],
+    },
+    riskBreakdown: {
+      fraudScore: {
+        type: Number,
+        min: 0,
+        max: 1,
+        default: 0,
+      },
+      linkRiskScore: {
+        type: Number,
+        min: 0,
+        max: 1,
+        default: 0,
+      },
+      communityRiskScore: {
+        type: Number,
+        min: 0,
+        max: 1,
+        default: 0,
+      },
+      reportCount: {
+        type: Number,
+        default: 0,
+      },
+    },
+    payeeTrustScore: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: 50,
+    },
+    payeeTrustLevel: {
+      type: String,
+      enum: ['LOW_TRUST', 'CAUTION', 'HIGH_TRUST'],
+      default: 'CAUTION',
+    },
+    payeeTrustReasons: {
+      type: [String],
+      default: [],
+    },
+    linkMeta: {
+      recipientType: String,
+      sanitizedRecipient: String,
+      extractedUpiId: String,
+      isHttps: Boolean,
+    },
+    analysisLatencyMs: {
       type: Number,
       default: 0,
     },

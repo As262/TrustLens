@@ -72,7 +72,7 @@ async function seedSyntheticData() {
           riskLevel: 'low',
           accountStatus: 'active',
           devices: [
-            { deviceId: 'device-iphone-14', name: 'iPhone 14', isTrusted: true },
+            { deviceId: 'device-windows-pc', name: 'Windows PC', isTrusted: true },
             { deviceId: 'device-macbook-pro', name: 'MacBook Pro', isTrusted: true },
           ],
           locationHistory: behavioralProfile.primaryLocations.map(loc => ({

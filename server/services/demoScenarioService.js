@@ -5,6 +5,63 @@
 
 export class DemoScenarioService {
   static SCENARIOS = {
+    SAFE_PAYMENT: {
+      id: 'safe-payment',
+      title: 'Safe Payment',
+      description: 'Low risk payment to trusted UPI recipient',
+      icon: '✅',
+      color: 'green',
+      transaction: {
+        amount: 180,
+        location: 'New York',
+        time: 13,
+        device: 'known',
+        category: 'shopping',
+        recipient: 'safe@upi',
+      },
+      expectedDecision: 'APPROVED',
+      expectedRiskLevel: 'LOW',
+      narrative: 'Trusted UPI with normal behavior signals',
+    },
+
+    FRAUDULENT_UPI: {
+      id: 'fraudulent-upi',
+      title: 'Fraudulent UPI',
+      description: 'Reported UPI ID with elevated fraud risk',
+      icon: '🚩',
+      color: 'red',
+      transaction: {
+        amount: 950,
+        location: 'Unknown IP',
+        time: 2,
+        device: 'unknown',
+        category: 'transfer',
+        recipient: 'fraudster@upi',
+      },
+      expectedDecision: 'BLOCKED',
+      expectedRiskLevel: 'HIGH',
+      narrative: 'High amount plus community-reported UPI should be blocked',
+    },
+
+    FAKE_LINK: {
+      id: 'fake-link',
+      title: 'Fake Link',
+      description: 'Suspicious payment URL with phishing signals',
+      icon: '⚠️',
+      color: 'amber',
+      transaction: {
+        amount: 420,
+        location: 'London',
+        time: 1,
+        device: 'unknown',
+        category: 'shopping',
+        recipient: 'http://secure-upi-check.com/pay?pa=lottery-claim@oksbi',
+      },
+      expectedDecision: 'WARNING',
+      expectedRiskLevel: 'MEDIUM',
+      narrative: 'Non-HTTPS suspicious domain and reported UPI should trigger warning/block checks',
+    },
+
     NORMAL: {
       id: 'normal',
       title: 'Normal Transaction',

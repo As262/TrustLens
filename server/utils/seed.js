@@ -46,8 +46,8 @@ const seedDatabase = async () => {
       accountStatus: 'active',
       devices: [
         {
-          deviceId: 'iphone-14',
-          name: 'iPhone 14',
+          deviceId: 'windows-pc',
+          name: 'Windows PC',
           lastUsed: new Date(),
           isTrusted: true,
         },
@@ -88,8 +88,8 @@ const seedDatabase = async () => {
         amount: 45.99,
         currency: 'USD',
         location: 'New York',
-        deviceId: 'iphone-14',
-        deviceName: 'iPhone 14',
+        deviceId: 'windows-pc',
+        deviceName: 'Windows PC',
         timestamp: new Date(now.getTime() - 1 * 60 * 60 * 1000), // 1 hour ago
         category: 'shopping',
         fraudScore: 0.05,
@@ -103,8 +103,8 @@ const seedDatabase = async () => {
         amount: 28.5,
         currency: 'USD',
         location: 'New York',
-        deviceId: 'iphone-14',
-        deviceName: 'iPhone 14',
+        deviceId: 'windows-pc',
+        deviceName: 'Windows PC',
         timestamp: new Date(now.getTime() - 3 * 60 * 60 * 1000), // 3 hours ago
         category: 'dining',
         fraudScore: 0.08,
@@ -119,8 +119,8 @@ const seedDatabase = async () => {
         amount: 250.0,
         currency: 'USD',
         location: 'Miami',
-        deviceId: 'iphone-14',
-        deviceName: 'iPhone 14',
+        deviceId: 'windows-pc',
+        deviceName: 'Windows PC',
         timestamp: new Date(now.getTime() - 5 * 60 * 60 * 1000), // 5 hours ago
         category: 'shopping',
         fraudScore: 0.42,
@@ -175,8 +175,8 @@ const seedDatabase = async () => {
         amount: 350.0,
         currency: 'USD',
         location: 'San Francisco',
-        deviceId: 'iphone-14',
-        deviceName: 'iPhone 14',
+        deviceId: 'windows-pc',
+        deviceName: 'Windows PC',
         timestamp: new Date(now.getTime() - 12 * 60 * 60 * 1000), // 12 hours ago
         category: 'entertainment',
         fraudScore: 0.35,

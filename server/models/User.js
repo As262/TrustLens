@@ -8,6 +8,11 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    name: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     passwordHash: {
       type: String,
       required: true,
@@ -17,6 +22,24 @@ const userSchema = new mongoose.Schema(
       default: 60,
       min: 0,
       max: 100,
+    },
+    upiId: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      sparse: true,
+      unique: true,
+    },
+    payeeTrustScore: {
+      type: Number,
+      default: 60,
+      min: 0,
+      max: 100,
+    },
+    incomingPaymentsCount: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     devices: [
       {

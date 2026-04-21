@@ -17,7 +17,7 @@ class SyntheticDataGenerator {
 
     // Device data
     this.devices = [
-      { name: 'iPhone 14', id: 'device-iphone-14' },
+      { name: 'Windows PC', id: 'device-windows-pc' },
       { name: 'MacBook Pro', id: 'device-macbook-pro' },
       { name: 'iPad Air', id: 'device-ipad-air' },
       { name: 'Samsung Galaxy S24', id: 'device-galaxy-s24' },

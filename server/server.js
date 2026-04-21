@@ -35,9 +35,23 @@ import { generalLimiter } from './middleware/rateLimiter.js';
 const app = express();
 const httpServer = createServer(app);
 const clientOrigin = process.env.CLIENT_URL || 'https://trustlens-drhy.onrender.com';
+const isLocalDevOrigin = (origin) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+const corsOrigin = (origin, callback) => {
+  if (!origin) {
+    callback(null, true);
+    return;
+  }
+
+  if (origin === clientOrigin || (process.env.NODE_ENV !== 'production' && isLocalDevOrigin(origin))) {
+    callback(null, true);
+    return;
+  }
+
+  callback(new Error(`CORS blocked for origin: ${origin}`));
+};
 const io = new Server(httpServer, {
   cors: {
-    origin: clientOrigin,
+    origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   },
@@ -48,7 +62,7 @@ const io = new Server(httpServer, {
  */
 app.use(
   cors({
-    origin: clientOrigin,
+    origin: corsOrigin,
     credentials: true,
   })
 );
