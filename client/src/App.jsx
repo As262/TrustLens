@@ -8,6 +8,7 @@ import FraudSimulation from './pages/FraudSimulation';
 import SendPayment from './pages/SendPayment';
 import Alerts from './pages/Alerts';
 import Auth from './pages/Auth';
+import LandingPage from './pages/Landing';
 import useTrust from './hooks/useTrust';
 import useAlerts from './hooks/useAlerts';
 import { authAPI } from './utils/api';
@@ -57,31 +58,41 @@ function App() {
     return <div className="min-h-screen flex items-center justify-center bg-slate-50"><div className="animate-pulse bg-blue-100 text-blue-800 px-6 py-3 rounded-full font-medium">Loading TrustLens...</div></div>;
   }
 
-  if (!user) {
-    return <Auth onLogin={handleLogin} />;
-  }
-
   return (
     <CardBlockProvider>
       <Router>
-        <MainLayout
-          user={user}
-          trustScore={score?.score || 60}
-          alertCount={unreadCount}
-          isConnected={true}
-          onLogout={handleLogout}
-        >
-          <Routes>
-            <Route path="/" element={<Dashboard user={user} />} />
-            <Route path="/dashboard" element={<Dashboard user={user} />} />
-            <Route path="/transactions" element={<Transactions user={user} />} />
-            <Route path="/privacy" element={<Privacy user={user} />} />
-            <Route path="/fraud-simulator" element={<FraudSimulation user={user} />} />
-            <Route path="/send-payment" element={<SendPayment user={user} />} />
-            <Route path="/alerts" element={<Alerts user={user} />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </MainLayout>
+        <Routes>
+          {/* Public Landing Page */}
+          <Route path="/" element={<LandingPage />} />
+
+          {/* Protected App Routes */}
+          <Route path="/app/*" element={
+            !user ? (
+              <Auth onLogin={handleLogin} />
+            ) : (
+              <MainLayout
+                user={user}
+                trustScore={score?.score || 60}
+                alertCount={unreadCount}
+                isConnected={true}
+                onLogout={handleLogout}
+              >
+                <Routes>
+                  <Route path="/" element={<Dashboard user={user} />} />
+                  <Route path="dashboard" element={<Dashboard user={user} />} />
+                  <Route path="transactions" element={<Transactions user={user} />} />
+                  <Route path="privacy" element={<Privacy user={user} />} />
+                  <Route path="fraud-simulator" element={<FraudSimulation user={user} />} />
+                  <Route path="send-payment" element={<SendPayment user={user} />} />
+                  <Route path="alerts" element={<Alerts user={user} />} />
+                  <Route path="*" element={<Navigate to="/app/dashboard" />} />
+                </Routes>
+              </MainLayout>
+            )
+          } />
+          
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </Router>
     </CardBlockProvider>
   );
