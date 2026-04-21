@@ -6,12 +6,12 @@ import {
 import AlertBadge from '../AlertBadge';
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: Home },
-  { path: '/send-payment', label: 'Send Payment', icon: Send },
-  { path: '/transactions', label: 'Transactions', icon: ListIcon },
-  { path: '/fraud-simulator', label: 'Fraud Detection', icon: Zap },
-  { path: '/alerts', label: 'Alerts', icon: AlertCircle },
-  { path: '/privacy', label: 'Privacy', icon: Lock },
+  { path: '/app/dashboard', label: 'Dashboard', icon: Home },
+  { path: '/app/send-payment', label: 'Send Payment', icon: Send },
+  { path: '/app/transactions', label: 'Transactions', icon: ListIcon },
+  { path: '/app/fraud-simulator', label: 'Fraud Detection', icon: Zap },
+  { path: '/app/alerts', label: 'Alerts', icon: AlertCircle },
+  { path: '/app/privacy', label: 'Privacy', icon: Lock },
 ];
 
 export default function Sidebar({ isOpen, setOpen, alertCount = 0 }) {
@@ -79,7 +79,7 @@ export default function Sidebar({ isOpen, setOpen, alertCount = 0 }) {
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
             return (
               <Link
                 key={item.path}
